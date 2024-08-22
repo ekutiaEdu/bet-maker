@@ -1,6 +1,8 @@
 import abc
 from decimal import Decimal
 
+from app.core.schemas.bet import Bet
+
 
 class BetRepoAbstract(abc.ABC):
     @abc.abstractmethod
@@ -8,5 +10,9 @@ class BetRepoAbstract(abc.ABC):
         pass
 
     @abc.abstractmethod
-    async def get_all(self) -> list[tuple]:
+    async def get_all(self) -> list[Bet]:
+        pass
+
+    @abc.abstractmethod
+    async def update_bets_statuses_by_event_result(self, event_id, event_result):
         pass

@@ -1,0 +1,20 @@
+from decimal import Decimal
+from enum import Enum
+
+from pydantic import BaseModel, Field
+
+
+class BetStatus(str, Enum):
+    pending = 'pending'
+    won = 'won'
+    lost = 'lost'
+
+
+class Bet(BaseModel):
+    bet_id: int = Field(..., ge=0)
+    status: BetStatus = ...
+
+
+class BetFull(Bet):
+    stake: Decimal = Field(..., decimal_places=2)
+    event_id: int = Field(..., ge=0)
