@@ -5,7 +5,7 @@ from contextlib import nullcontext as does_not_raise
 
 from app.core.schemas.bet import Bet, BetStatus
 from app.services.bet_service import BetService
-from tests.units.mocks.bet_repo_in_memory import BetRepoInMemory
+from app.repos.bet_repo_in_memory import BetRepoInMemory
 
 
 @pytest.fixture
@@ -26,25 +26,25 @@ async def bet_service_with_data(bet_repo_with_data) -> BetService:
 
 @pytest.mark.parametrize("stake, expectation",
                          [
-                             ("1.75", does_not_raise()),
-                             ("1.01", does_not_raise()),
-                             ("0.10", does_not_raise()),
-                             ("0.1", pytest.raises(ValueError)),
-                             ("0", pytest.raises(ValueError)),
-                             ("0.00", pytest.raises(ValueError)),
-                             ("-1.12", pytest.raises(ValueError)),
-                             ("1.234", pytest.raises(ValueError)),
+                             (Decimal("1.75"), does_not_raise()),
+                             (Decimal("1.01"), does_not_raise()),
+                             (Decimal("0.10"), does_not_raise()),
+                             (Decimal("0.1"), pytest.raises(ValueError)),
+                             (Decimal("0"), pytest.raises(ValueError)),
+                             (Decimal("0.00"), pytest.raises(ValueError)),
+                             (Decimal("-1.12"), pytest.raises(ValueError)),
+                             (Decimal("1.234"), pytest.raises(ValueError)),
                          ])
 async def test_stake_value_validation(stake, expectation):
     with expectation as e:
-        await BetService(repo=BetRepoInMemory()).create_bet(stake_str=stake, event_id=0)
+        await BetService(repo=BetRepoInMemory()).create_bet(stake=stake, event_id=0)
 
 
 async def test_bet_valid_stake_save_it():
-    stake = "100.00"
+    stake = Decimal("100.00")
     repo = BetRepoInMemory()
 
-    bet_id = await BetService(repo=repo).create_bet(stake_str=stake, event_id=0)
+    bet_id = await BetService(repo=repo).create_bet(stake=stake, event_id=0)
 
     assert any(bet.bet_id == bet_id for bet in repo.storage)
 
