@@ -1,0 +1,17 @@
+services:
+  bet-maker-service:
+    container_name: bet-maker
+    build:
+       context: .
+       dockerfile: Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "${SERVICE_EXTERNAL_PORT}:5555"
+    networks:
+      - bet-network
+
+networks:
+  bet-network:
+    driver: bridge
+    name: "bet-network"
