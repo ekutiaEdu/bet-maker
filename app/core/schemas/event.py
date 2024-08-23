@@ -5,8 +5,8 @@ from pydantic import BaseModel
 
 
 class EventStatus(str, Enum):
-    WIN = "WIN"
-    LOSE = "LOSE"
+    win = "WIN"
+    lose = "LOSE"
 
 
 class SetEventStatus(BaseModel):

@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 from app.core.schemas.bet import Bet
+from app.core.schemas.event import EventStatus
 from app.repos.bet_repo_abstract import BetRepoAbstract
 
 
@@ -19,7 +20,7 @@ class BetService:
     async def get_all_bets(self) -> list[Bet]:
         return await self.__repo.get_all()
 
-    async def set_event_result(self, event_id: int, event_result: str) -> int:
+    async def set_event_result(self, event_id: int, event_status: EventStatus) -> int:
         count_updated_bets = await self.__repo.update_bets_statuses_by_event_result(
-            event_id=event_id, event_result=event_result)
+            event_id=event_id, event_status=event_status)
         return count_updated_bets

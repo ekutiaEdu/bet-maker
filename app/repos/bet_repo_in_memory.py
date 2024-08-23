@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 from app.core.schemas.bet import Bet, BetStatus, BetFull
+from app.core.schemas.event import EventStatus
 from app.repos.bet_repo_abstract import BetRepoAbstract
 
 
@@ -18,17 +19,17 @@ class BetRepoInMemory(BetRepoAbstract):
     async def get_all(self) -> list[Bet]:
         return self.storage
 
-    async def update_bets_statuses_by_event_result(self, event_id: int, event_result: str) -> int:
+    async def update_bets_statuses_by_event_result(self, event_id: int, event_status: EventStatus) -> int:
         count_updated_bets = 0
         for bet in self.storage:
             if bet.event_id == event_id:
-                match event_result:
-                    case "win":
+                match event_status:
+                    case EventStatus.win:
                         bet.status = BetStatus.won
-                    case "lose":
+                    case EventStatus.lose:
                         bet.status = BetStatus.lost
                     case _:
-                        raise ValueError("Event result valur is invalid.")
+                        raise ValueError("Event status value is invalid.")
                 count_updated_bets += 1
         return count_updated_bets
 

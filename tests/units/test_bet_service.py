@@ -4,6 +4,7 @@ import pytest
 from contextlib import nullcontext as does_not_raise
 
 from app.core.schemas.bet import Bet, BetStatus
+from app.core.schemas.event import EventStatus
 from app.services.bet_service import BetService
 from app.repos.bet_repo_in_memory import BetRepoInMemory
 
@@ -59,20 +60,20 @@ async def test_get_all_return_bets_in_proper_format(bet_service_with_data):
 
 
 async def test_set_event_result_return_proper_changed_event_count(bet_service_with_data):
-    assert await bet_service_with_data.set_event_result(event_id=1, event_result="win") == 2
+    assert await bet_service_with_data.set_event_result(event_id=1, event_status=EventStatus.win) == 2
 
 
-@pytest.mark.parametrize("event_id, event_result, bet_status",
+@pytest.mark.parametrize("event_id, event_status, bet_status",
                          [
-                             (1, "win", BetStatus.won),
-                             (3, "lose", BetStatus.lost),
-                             (5, "win", None),
+                             (1, EventStatus.win, BetStatus.won),
+                             (3, EventStatus.lose, BetStatus.lost),
+                             (5, EventStatus.win, None),
                          ])
 async def test_change_event_result_to_win_leds_to_changing_bets_status(
-        event_id, event_result, bet_status, bet_repo_with_data):
+        event_id, event_status, bet_status, bet_repo_with_data):
     service = BetService(repo=bet_repo_with_data)
 
-    await service.set_event_result(event_id=event_id, event_result=event_result)
+    await service.set_event_result(event_id=event_id, event_status=event_status)
 
     for bet in bet_repo_with_data.storage:
         if bet.event_id == event_id:
