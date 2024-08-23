@@ -10,7 +10,9 @@ package-mode = false
 python = "^3.12"
 fastapi = {extras = ["standart"], version = "^0.112.1"}
 fastapi-cli = "^0.0.5"
-
+pydantic-settings = "^2.4.0"
+sqlalchemy = "^2.0.32"
+asyncpg = "^0.29.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.2"

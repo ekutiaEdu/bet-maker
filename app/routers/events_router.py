@@ -1,9 +1,8 @@
 from fastapi import APIRouter, Path, Body, Depends
 from starlette.status import HTTP_200_OK
 
-from app.core.dependencies import get_bet_service
+from app.config.dependencies import get_bet_service
 from app.core.schemas.event import SetEventStatus
-from app.repos.bet_repo_in_memory import BetRepoInMemory
 from app.services.bet_service import BetService
 
 events_router = APIRouter(prefix="/events", tags=["events"])

@@ -13,7 +13,7 @@ class BetRepoInMemory(BetRepoAbstract):
 
     async def add(self, stake: Decimal, event_id: int) -> int:
         bet_id = len(self.storage)
-        self.storage.append(BetFull(bet_id=bet_id, event_id=event_id, stake=stake, status="pending"))
+        self.storage.append(BetFull(id=bet_id, event_id=event_id, stake=stake, status="pending"))
         return bet_id
 
     async def get_all(self) -> list[Bet]:

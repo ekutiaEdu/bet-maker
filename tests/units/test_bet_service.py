@@ -47,7 +47,7 @@ async def test_bet_valid_stake_save_it():
 
     bet_id = await BetService(repo=repo).create_bet(stake=stake, event_id=0)
 
-    assert any(bet.bet_id == bet_id for bet in repo.storage)
+    assert any(bet.id == bet_id for bet in repo.storage)
 
 
 async def test_get_all_return_all_bets(bet_service_with_data):
