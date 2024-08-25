@@ -8,8 +8,8 @@ from app.services.bet_service import BetService
 events_router = APIRouter(prefix="/events", tags=["events"])
 
 
-@events_router.put("/{event_id}", status_code=HTTP_200_OK)
-async def set_event_result(
+@events_router.put("/{event_id}", status_code=HTTP_200_OK, name="events:set_event_status")
+async def set_event_status(
         event_id: int = Path(..., ge=0),
         event_status: SetEventStatus = Body(),
         bet_service: BetService = Depends(get_bet_service)) -> None:

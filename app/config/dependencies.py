@@ -15,5 +15,5 @@ async def get_repository() -> BetRepoAbstract:
 
 
 async def get_bet_service() -> BetService:
-    # return BetService(repo=await get_repository())
-    return BetService(repo=BetRepoDb(session=session_maker()))
+    async with session_maker() as session:
+        yield BetService(repo=BetRepoDb(session=session))
