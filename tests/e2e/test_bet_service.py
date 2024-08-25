@@ -1,3 +1,4 @@
+import time
 
 import pytest
 import requests
@@ -22,7 +23,8 @@ def service(urls):
             context=".",
             compose_file_name="docker-compose.yaml",
             build=True, pull=True, keep_volumes=False) as service:
-        service.wait_for(url=urls["docs"])
+        # service.wait_for(url=urls["docs"])
+        time.sleep(30)
         yield service
 
 
