@@ -37,7 +37,7 @@ async def bet_service_with_data(bet_repo_with_data) -> BetService:
                              (Decimal("1.234"), pytest.raises(ValueError)),
                          ])
 async def test_stake_value_validation(stake, expectation):
-    with expectation as e:
+    with expectation:
         await BetService(repo=BetRepoInMemory()).create_bet(stake=stake, event_id=0)
 
 
