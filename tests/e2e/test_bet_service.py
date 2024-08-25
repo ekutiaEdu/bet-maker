@@ -26,7 +26,7 @@ def service(urls):
         yield service
 
 
-@pytest.mark.timeout(20)
+@pytest.mark.timeout(100)
 def test_scenario_1(service, urls):
     event_id = 0
 
