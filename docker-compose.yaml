@@ -8,8 +8,35 @@ services:
       - .env
     ports:
       - "${SERVICE_EXTERNAL_PORT}:5555"
+    depends_on:
+      bet_db:
+        condition: service_healthy
     networks:
       - bet-network
+
+  bet_db:
+    image: postgres:latest
+    container_name: bet_db
+    env_file:
+      - .env
+    ports:
+      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
+    expose:
+      - "${POSTGRES_PORT}"
+    command:
+      - "-p ${POSTGRES_PORT}"
+    healthcheck:
+      test: [ "CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'" ]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+    volumes:
+      - "pg_data:/var/lib/postgresql/data"
+    networks:
+      - bet-network
+
+volumes:
+  pg_data: {}
 
 networks:
   bet-network:

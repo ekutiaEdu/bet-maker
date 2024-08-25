@@ -32,7 +32,7 @@ def postgres_container():
 
 @pytest_asyncio.fixture(scope="function")
 async def empty_db(
-        postgres_container, sa=None):
+        postgres_container):
     from app.infrastructure.db.database import engine
     from app.infrastructure.db.models.bets import Base
     async with engine.begin() as conn:
