@@ -1,9 +1,10 @@
 
 import pytest
 import requests
-from app.config.config import settings
 from starlette.status import HTTP_200_OK, HTTP_201_CREATED
 from testcontainers.compose import DockerCompose
+
+from app.config.config import settings
 
 
 @pytest.fixture(scope="module")

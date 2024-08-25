@@ -11,10 +11,10 @@ from sqlalchemy import make_url
 from starlette.status import HTTP_200_OK, HTTP_201_CREATED
 from testcontainers.postgres import PostgresContainer
 
-from app.core.schemas.bet import Bet
-from app.routers.dto.bet import BetCreatedResult
-from app.infrastructure.db.models.bets import BetsOrm
 import app.config.config as configuration
+from app.core.schemas.bet import Bet
+from app.infrastructure.db.models.bets import BetsOrm
+from app.routers.dto.bet import BetCreatedResult
 
 
 @pytest.fixture(scope="module")
@@ -67,7 +67,8 @@ def fastapi_app() -> FastAPI:
 @pytest.fixture
 async def client(fastapi_app: FastAPI) -> AsyncClient:
     async with AsyncClient(
-            transport=ASGITransport(app=fastapi_app), base_url="http://localhost") as client:
+            transport=ASGITransport(app=fastapi_app),
+            base_url="http://localhost") as client:
         yield client
 
 
