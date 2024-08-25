@@ -4,10 +4,10 @@ from decimal import Decimal
 import pytest
 import pytest_asyncio
 from fastapi import FastAPI
-from httpx import AsyncClient, ASGITransport
+from httpx import ASGITransport, AsyncClient
 from pydantic import TypeAdapter
 from sqlalchemy import make_url
-from starlette.status import HTTP_201_CREATED, HTTP_200_OK
+from starlette.status import HTTP_200_OK, HTTP_201_CREATED
 from testcontainers.postgres import PostgresContainer
 
 from app.core.schemas.bet import Bet
@@ -65,7 +65,8 @@ def app() -> FastAPI:
 
 @pytest.fixture
 async def client(app: FastAPI) -> AsyncClient:
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://localhost") as client:
+    async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://localhost") as client:
         yield client
 
 
@@ -90,5 +91,6 @@ async def test_get_all_endpoint(filled_db, client, app):
 @pytest.mark.asyncio(loop_scope="module")
 async def test_set_event_status_endpoint(filled_db, client, app):
     response = await client.put(
-        url=app.url_path_for("events:set_event_status", event_id=1), json={"new_event_status": "WIN"})
+        url=app.url_path_for(
+            "events:set_event_status", event_id=1), json={"new_event_status": "WIN"})
     assert response.status_code == HTTP_200_OK

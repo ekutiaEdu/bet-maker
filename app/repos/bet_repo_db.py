@@ -29,7 +29,8 @@ class BetRepoDb(BetRepoAbstract):
         bet_list_adapter = TypeAdapter(list[Bet])
         return bet_list_adapter.validate_python(result.scalars().all())
 
-    async def update_bets_statuses_by_event_result(self, event_id: int, event_status: EventStatus) -> int:
+    async def update_bets_statuses_by_event_result(
+            self, event_id: int, event_status: EventStatus) -> int:
         stmt = select(BetsOrm).where(BetsOrm.event_id == event_id)
         async with self.__session.begin():
             result = await self.__session.execute(stmt)

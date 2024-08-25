@@ -1,10 +1,9 @@
 
 import pytest
 import requests
-from starlette.status import HTTP_201_CREATED, HTTP_200_OK
-from testcontainers.compose import DockerCompose
-
 from config.config import settings
+from starlette.status import HTTP_200_OK, HTTP_201_CREATED
+from testcontainers.compose import DockerCompose
 
 
 @pytest.fixture(scope="module")
@@ -19,7 +18,10 @@ def urls():
 
 @pytest.fixture(scope="module")
 def service(urls):
-    with DockerCompose(context=".", compose_file_name="docker-compose.yaml", build=True, pull=True, keep_volumes=False) as service:
+    with DockerCompose(
+            context=".",
+            compose_file_name="docker-compose.yaml",
+            build=True, pull=True, keep_volumes=False) as service:
         service.wait_for(url=urls["docs"])
         yield service
 

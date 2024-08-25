@@ -1,12 +1,12 @@
+from contextlib import nullcontext as does_not_raise
 from decimal import Decimal
 
 import pytest
-from contextlib import nullcontext as does_not_raise
 
 from app.core.schemas.bet import Bet, BetStatus
 from app.core.schemas.event import EventStatus
-from app.services.bet_service import BetService
 from app.repos.bet_repo_in_memory import BetRepoInMemory
+from app.services.bet_service import BetService
 
 
 @pytest.fixture
@@ -59,8 +59,10 @@ async def test_get_all_return_bets_in_proper_format(bet_service_with_data):
     assert isinstance(bet, Bet)
 
 
-async def test_set_event_result_return_proper_changed_event_count(bet_service_with_data):
-    assert await bet_service_with_data.set_event_result(event_id=1, event_status=EventStatus.win) == 2
+async def test_set_event_result_return_proper_changed_event_count(
+        bet_service_with_data):
+    assert await bet_service_with_data.set_event_result(
+        event_id=1, event_status=EventStatus.win) == 2
 
 
 @pytest.mark.parametrize("event_id, event_status, bet_status",
