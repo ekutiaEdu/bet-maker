@@ -3,7 +3,7 @@ from decimal import Decimal
 
 import pytest
 
-from app.core.schemas.bet import Bet, BetStatus
+from app.core.schemas.bet import BetStatus, Bet
 from app.core.schemas.event import EventStatus
 from app.repos.bet_repo_in_memory import BetRepoInMemory
 from app.services.bet_service import BetService
