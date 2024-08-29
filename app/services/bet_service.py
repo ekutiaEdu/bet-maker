@@ -1,15 +1,20 @@
+import time
 from decimal import Decimal
 
+from app.clients.event_client_abstract import EventClientAbstract
+from app.core.exceptions import ClientException, EventServiceException
 from app.core.schemas.bet import Bet
-from app.core.schemas.event import EventStatus
+from app.core.schemas.event import EventStatus, Event
 from app.repos.bet_repo_abstract import BetRepoAbstract
 
 
 class BetService:
     __repo: BetRepoAbstract
+    __event_client: EventClientAbstract
 
-    def __init__(self, repo: BetRepoAbstract) -> None:
+    def __init__(self, repo: BetRepoAbstract, event_client: EventClientAbstract) -> None:
         self.__repo = repo
+        self.__event_client = event_client
 
     async def create_bet(self, stake: Decimal, event_id: int) -> int:
         if stake.as_tuple().exponent != -2 or stake <= 0:
@@ -24,3 +29,10 @@ class BetService:
         count_updated_bets = await self.__repo.update_bets_statuses_by_event_result(
             event_id=event_id, event_status=event_status)
         return count_updated_bets
+
+    async def get_active_events(self) -> list[Event]:
+        try:
+            events = await self.__event_client.get_events()
+        except ClientException as exc:
+            raise EventServiceException() from exc
+        return [event for event in events if event.deadline > int(time.time())]

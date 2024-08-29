@@ -1,3 +1,4 @@
+from app.clients.event_client_stab import EventClientStab
 from app.infrastructure.db.database import session_maker
 from app.repos.bet_repo_abstract import BetRepoAbstract
 from app.repos.bet_repo_db import BetRepoDb
@@ -16,4 +17,4 @@ async def get_repository() -> BetRepoAbstract:
 
 async def get_bet_service() -> BetService:
     async with session_maker() as session:
-        yield BetService(repo=BetRepoDb(session=session))
+        yield BetService(repo=BetRepoDb(session=session), event_client=EventClientStab())
