@@ -21,6 +21,7 @@ class EventClientRedis (EventClientAbstract):
         keys = await self.__redis.keys('event:*')
         values = await self.__redis.mget(keys)
         events = []
+
         for value in values:
             event = Event.model_validate(json.loads(value))
             events.append(event)

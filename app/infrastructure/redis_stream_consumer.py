@@ -2,6 +2,7 @@ import asyncio
 import uuid
 
 from pydantic import BaseModel, Field
+from redis import ResponseError
 from redis.asyncio import Redis
 
 from app.core.schemas.event import EventStatus
@@ -43,7 +44,16 @@ class RedisStreamConsumer:
         self.is_finalized = asyncio.Event()
         self.is_finalized.set()
 
+    async def __group_exists(self) -> bool:
+        try:
+            groups_info = await self.client.xinfo_groups(self.stream)
+            return any(group['name'] == self.group for group in groups_info)
+        except ResponseError:
+            return False
+
     async def __create_group(self) -> None:
+        if await self.__group_exists():
+            return
         await self.client.xgroup_create(
             name=self.stream, id="0", groupname=self.group, mkstream=True)
 
@@ -56,6 +66,7 @@ class RedisStreamConsumer:
     async def start(self) -> None:
         if not self.client:
             raise RuntimeError("Must call connect() before starting.")
+
         await self.__create_group()
         self.is_finalized.clear()
         while not self.is_stopped:

@@ -1,10 +1,14 @@
+from decimal import Decimal
+from time import time
 
 import pytest
 import requests
+from redis.asyncio import Redis
 from starlette.status import HTTP_200_OK, HTTP_201_CREATED
 from testcontainers.compose import DockerCompose
 
 from app.config.config import settings
+from app.core.schemas.event import Event, EventStatus
 
 
 @pytest.fixture(scope="module")
@@ -21,7 +25,7 @@ def urls():
 def service(urls):
     with DockerCompose(
             context=".",
-            compose_file_name="docker-compose.yaml",
+            compose_file_name="docker-compose.local.yaml",
             build=True, pull=True, keep_volumes=False) as service:
         service.wait_for(url=urls["docs"])
         yield service
@@ -29,11 +33,16 @@ def service(urls):
 
 @pytest.mark.timeout(100)
 @pytest.mark.skip(reason="Does not work in GitHub Actions")
-def test_scenario_1(service, urls):
-    event_id = 0
+async def test_scenario_1(service, urls):
+    event = Event(
+        id=1, odds=Decimal("1.11"),
+        status=EventStatus.pending, deadline=int(time()) + 60)
+    redis_client = Redis(host="localhost", port=settings.REDIS_PORT)
+    await redis_client.aclose()
+    await redis_client.set(f"event:{event.id}", event.model_dump_json())
 
     response = requests.post(
-        url=urls["bets"], json={"event_id": event_id, "stake": "3.14"}, timeout=3)
+        url=urls["bets"], json={"event_id": event.id, "stake": "3.14"}, timeout=3)
     assert response.status_code == HTTP_201_CREATED
     bet_id = response.json()["id"]
 
@@ -43,7 +52,7 @@ def test_scenario_1(service, urls):
     assert created_bet and created_bet["status"] == "pending"
 
     response = requests.put(
-        url=f"{urls['events']}/{event_id}", json={"new_event_status": "WIN"}, timeout=3)
+        url=f"{urls['events']}/{event.id}", json={"new_event_status": "WIN"}, timeout=3)
     assert response.status_code == HTTP_200_OK
     response = requests.get(url=urls["bets"], timeout=3)
     updated_bet = next((bet for bet in response.json() if bet["id"] == bet_id), None)

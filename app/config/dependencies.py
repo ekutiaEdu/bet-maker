@@ -1,21 +1,34 @@
-from app.clients.event_client_stab import EventClientStab
-from app.infrastructure.db.database import session_maker
-from app.repos.bet_repo_abstract import BetRepoAbstract
+from redis.asyncio import Redis
+
+from app.clients.event_client_redis import EventClientRedis
+from app.config.config import settings
+from app.infrastructure.db.models.database import session_maker
+from app.infrastructure.db.redis.redis_pool import redis_pool
+from app.infrastructure.redis_stream_consumer import RedisStreamConsumer
 from app.repos.bet_repo_db import BetRepoDb
-from app.repos.bet_repo_in_memory import BetRepoInMemory
 from app.services.bet_service import BetService
-
-repository = None
-
-
-async def get_repository() -> BetRepoAbstract:
-    global repository
-    if not repository:
-        repository = BetRepoInMemory()
-    return repository
 
 
 async def get_bet_service() -> BetService:
     async with session_maker() as session:
+        redis_client = await Redis.from_pool(connection_pool=redis_pool)
+        event_client = EventClientRedis(redis=redis_client)
+
         yield BetService(
-            repo=BetRepoDb(session=session), event_client=EventClientStab())
+            repo=BetRepoDb(session=session), event_client=event_client)
+
+        await redis_client.aclose()
+
+
+async def get_redis_stream_consumer() -> RedisStreamConsumer:
+    bet_service = get_bet_service()
+    print(f"{settings.redis_dsn=}")
+    return RedisStreamConsumer(
+        bet_service=bet_service,
+        host=settings.REDIS_HOST,
+        port=settings.REDIS_PORT,
+        username=settings.REDIS_USER,
+        password=settings.REDIS_PASSWORD,
+        stream=settings.REDIS_EVENTS_STREAM,
+        group="bet-maker-group"
+    )

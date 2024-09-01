@@ -1,9 +1,10 @@
 from typing import Any
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from starlette.status import HTTP_200_OK, HTTP_201_CREATED
 
 from app.config.dependencies import get_bet_service
+from app.core.exceptions import EventNotFound
 from app.core.schemas.bet import Bet
 from app.routers.dto.bet import BetCreatedResult, CreateBet
 from app.services.bet_service import BetService
@@ -23,5 +24,8 @@ async def get_all_bets(
 async def add_bet(
         bet: CreateBet,
         bet_service: BetService = Depends(get_bet_service)) -> BetCreatedResult:
-    bet_id = await bet_service.create_bet(stake=bet.stake, event_id=bet.event_id)
+    try:
+        bet_id = await bet_service.create_bet(stake=bet.stake, event_id=bet.event_id)
+    except EventNotFound:
+        raise HTTPException(status_code=404) from None
     return BetCreatedResult(id=bet_id)
