@@ -1,14 +1,13 @@
-import time
 from contextlib import nullcontext as does_not_raise
 from decimal import Decimal
 
 import pytest
-from pytest_mock import mocker
 
 from app.clients.event_client_abstract import EventClientAbstract
-from app.core.exceptions import ClientException, EventServiceException
-from app.core.schemas.bet import BetStatus, Bet
-from app.core.schemas.event import EventStatus, Event
+from app.clients.event_client_stab import EventClientStab
+from app.core.exceptions import BetServiceException, ClientException, EventNotFound
+from app.core.schemas.bet import Bet, BetStatus
+from app.core.schemas.event import EventStatus
 from app.repos.bet_repo_in_memory import BetRepoInMemory
 from app.services.bet_service import BetService
 
@@ -25,15 +24,8 @@ async def bet_repo_with_data() -> BetRepoInMemory:
 
 
 @pytest.fixture
-def event_client_mock(mocker):
-    events = [
-        Event(id=1, odds="1.11", status=EventStatus.pending, deadline=int(time.time() + 10)),
-        Event(id=2, odds="2.11", status=EventStatus.pending, deadline=int(time.time() + 100)),
-        Event(id=3, odds="3.11", status=EventStatus.pending, deadline=int(time.time() + 1000)),
-        Event(id=4, odds="4.11", status=EventStatus.pending, deadline=int(time.time() - 100)),]
-    client_mock = mocker.AsyncMock(spec=EventClientAbstract)
-    client_mock.get_events.return_value = events
-    return client_mock
+def event_client_mock():
+    return EventClientStab()
 
 
 @pytest.fixture
@@ -64,16 +56,25 @@ async def test_stake_value_validation(stake, expectation, event_client_mock):
         await BetService(
             repo=BetRepoInMemory(),
             event_client=event_client_mock
-        ).create_bet(stake=stake, event_id=0)
+        ).create_bet(stake=stake, event_id=1)
 
 
 async def test_bet_valid_stake_save_it(event_client_mock):
     stake = Decimal("100.00")
     repo = BetRepoInMemory()
 
-    bet_id = await BetService(repo=repo, event_client=event_client_mock).create_bet(stake=stake, event_id=0)
+    bet_id = await (BetService(repo=repo, event_client=event_client_mock)
+                    .create_bet(stake=stake, event_id=1))
 
     assert any(bet.id == bet_id for bet in repo.storage)
+
+
+async def test_create_bet_for_not_active_event(bet_service_with_data):
+    stake = Decimal("100.00")
+    event_id_not_exist = 100
+
+    with pytest.raises(EventNotFound):
+        await bet_service_with_data.create_bet(stake=stake, event_id=event_id_not_exist)
 
 
 async def test_get_all_return_all_bets(bet_service_with_data):
@@ -112,7 +113,6 @@ async def test_change_event_result_to_win_leds_to_changing_bets_status(
 
 async def test_get_events_return_only_active_events(bet_service_with_data):
     active_events = await bet_service_with_data.get_active_events()
-    print(f"{active_events=}")
     assert len(active_events) == 3
 
 
@@ -121,5 +121,7 @@ async def test_get_events_raise_service_exception_in_case_client_exception(
         mock_event_client_with_exception):
     service = BetService(
         repo=bet_repo_with_data, event_client=mock_event_client_with_exception)
-    with pytest.raises(EventServiceException):
+    with pytest.raises(BetServiceException):
         await service.get_active_events()
+
+

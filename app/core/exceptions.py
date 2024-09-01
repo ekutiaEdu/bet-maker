@@ -2,5 +2,9 @@ class ClientException(Exception):
     pass
 
 
-class EventServiceException(Exception):
+class BetServiceException(Exception):
+    pass
+
+
+class EventNotFound(BetServiceException):
     pass

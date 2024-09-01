@@ -76,7 +76,7 @@ async def client(fastapi_app: FastAPI) -> AsyncClient:
 async def test_create_bet_endpoint(empty_db, client, fastapi_app):
     response = await client.post(
         url=fastapi_app.url_path_for("bets:add"),
-        json={"event_id": 0, "stake": "100.14"})
+        json={"event_id": 1, "stake": "100.14"})
     assert response.status_code == HTTP_201_CREATED
     assert BetCreatedResult.model_validate_json(response.text).id == 1
 

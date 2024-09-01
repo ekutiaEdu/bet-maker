@@ -17,4 +17,5 @@ async def get_repository() -> BetRepoAbstract:
 
 async def get_bet_service() -> BetService:
     async with session_maker() as session:
-        yield BetService(repo=BetRepoDb(session=session), event_client=EventClientStab())
+        yield BetService(
+            repo=BetRepoDb(session=session), event_client=EventClientStab())
