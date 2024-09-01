@@ -38,6 +38,11 @@ jobs:
         echo POSTGRES_DB=bet_db_test >> .env
         echo POSTGRES_HOST=dev_db >> .env
         echo POSTGRES_PORT=5432 >> .env
+        echo REDIS_USER= >> .env
+        echo REDIS_PASSWORD= >> .env
+        echo REDIS_HOST=redis >> .env
+        echo REDIS_PORT=6379 >> .env
+        echo REDIS_EVENTS_STREAM=events >> .env
         cat .env
 
     - name: Run tests and build coverage file
