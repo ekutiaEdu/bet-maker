@@ -19,4 +19,3 @@ class Event(BaseModel):
     odds: Decimal = Field(..., ge=0, decimal_places=2)
     status: EventStatus = ...
     deadline: int = Field(..., ge=0)
-
