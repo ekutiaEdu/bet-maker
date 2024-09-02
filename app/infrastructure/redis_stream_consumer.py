@@ -71,8 +71,6 @@ class RedisStreamConsumer:
         self.is_finalized.clear()
         while not self.is_stopped:
             try:
-                response_len = await self.client.xlen(name="test_stream")
-                print(f"{response_len=}")
                 response_msg = await self.client.xreadgroup(
                     groupname=self.group,
                     consumername=self.consumer_name,
