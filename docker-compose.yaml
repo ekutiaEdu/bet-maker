@@ -11,6 +11,21 @@ services:
     depends_on:
       bet_db:
         condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - bet-network
+
+  line-provider-service:
+    image: ekutia/line-provider-image:latest
+    container_name: line-provider
+    env_file:
+      - .env
+    ports:
+      - "5002:5555"
+    depends_on:
+      redis:
+        condition: service_started
     networks:
       - bet-network
 
@@ -32,6 +47,18 @@ services:
       retries: 3
     volumes:
       - "pg_data:/var/lib/postgresql/data"
+    networks:
+      - bet-network
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    env_file:
+      - .env
+    ports:
+      - "${REDIS_PORT}:${REDIS_PORT}"
+    expose:
+      - "${REDIS_PORT}"
     networks:
       - bet-network
 

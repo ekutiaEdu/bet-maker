@@ -1,4 +1,5 @@
 from redis.asyncio import Redis
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.clients.event_client_redis import EventClientRedis
 from app.config.config import settings
@@ -20,9 +21,10 @@ async def get_bet_service() -> BetService:
         await redis_client.aclose()
 
 
-async def get_redis_stream_consumer() -> RedisStreamConsumer:
-    bet_service = get_bet_service()
-    print(f"{settings.redis_dsn=}")
+async def get_redis_stream_consumer(session: AsyncSession, redis_client: Redis) -> RedisStreamConsumer:
+    bet_service = BetService(
+        repo=BetRepoDb(session=session),
+        event_client=EventClientRedis(redis=redis_client))
     return RedisStreamConsumer(
         bet_service=bet_service,
         host=settings.REDIS_HOST,
