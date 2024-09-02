@@ -21,7 +21,8 @@ async def get_bet_service() -> BetService:
         await redis_client.aclose()
 
 
-async def get_redis_stream_consumer(session: AsyncSession, redis_client: Redis) -> RedisStreamConsumer:
+async def get_redis_stream_consumer(
+        session: AsyncSession, redis_client: Redis) -> RedisStreamConsumer:
     bet_service = BetService(
         repo=BetRepoDb(session=session),
         event_client=EventClientRedis(redis=redis_client))

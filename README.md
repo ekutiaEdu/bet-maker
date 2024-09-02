@@ -2,7 +2,7 @@
 
 ## Description
 A simple betting service created according to the requirements of a test technical assignment. It consists of a web service using FastAPI and a PostgreSQL database.
-
+It uses Redis for communication with [line-provider](https://github.com/ekutiaEdu/line-provider).
 
 ## Installation
 
@@ -12,7 +12,7 @@ A simple betting service created according to the requirements of a test technic
    ```bash
    docker compose up --build
    ```
-3. Go to the Swagger page at: [http://localhost:5001/docs](http://localhost:5001/docs).
+3. Go to the Swagger page at: [http://localhost:5001/docs](http://localhost:5001/docs) for bet-maker service and [http://localhost:5002/docs](http://localhost:5002/docs) for line-provider service.
 
 ### Running Locally
 1. Install Poetry by following the instructions [here](https://python-poetry.org/docs/#installation).
@@ -34,3 +34,4 @@ e2e test does not work in GitHub Actions, marked it as ignored.
 Since there is no persistent event storage as required:
 1. It is possible to place a bet on an event that has already had its result set, meaning the event has already concluded.
 2. It is possible to change the outcome of an event twice.
+3. A lot of logic issues with creating events and changing event status.
